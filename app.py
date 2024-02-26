@@ -158,6 +158,10 @@ def read_espf_meal(id_meal):
     user = User.query.get(int(current_user.id))
     meals = user.meals
     meal = Meal.query.get(id_meal)
+
+    if meal.user_id != current_user.id:
+        return jsonify({"message": "Operacao nao permitida"}), 403
+
     if meal:
         return jsonify({
                         "meal_name": meal.meal_name,
@@ -196,26 +200,26 @@ def update_field_meal(id_meal, field_to_change):
         return jsonify({"message": "Operacao nao permitida"}), 403
     
     if field_to_change == "description":
-        new_description = data.get("new_description")
+        new_description = data.get("new_value")
         meal.description = new_description
         db.session.commit()
         return jsonify({"message": f"Refeicao {id_meal} atualizada com sucesso"})
    
     if field_to_change == "name":
-        new_name = data.get("new_name")
+        new_name = data.get("new_value")
         meal.meal_name = new_name
         db.session.commit()
         return jsonify({"message": f"Refeicao {id_meal} atualizada com sucesso"})
 
     if field_to_change == "date":
-        new_date_str = data.get("new_date")
+        new_date_str = data.get("new_value")
         new_date = datetime.strptime(new_date_str, '%d-%m-%Y %H:%M:%S')
         meal.date = new_date
         db.session.commit()
         return jsonify({"message": f"Refeicao {id_meal} atualizada com sucesso"})
 
     if field_to_change == "in_diet":
-        new_in_diet = data.get("new_in_diet")
+        new_in_diet = data.get("new_value")
         meal.in_diet = new_in_diet
         db.session.commit()
         return jsonify({"message": f"Refeicao {id_meal} atualizada com sucesso"})
