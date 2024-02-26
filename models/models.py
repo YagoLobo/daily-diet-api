@@ -1,4 +1,4 @@
-from database import db
+from database import db, DateTime, datetime
 from flask_login import UserMixin
 
 class User(db.Model, UserMixin):
@@ -14,5 +14,5 @@ class Meal(db.Model):
     meal_name = db.Column(db.String(80), nullable=False)
     description = db.Column(db.String(80), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
-    in_diet = db.Column(db.Boolean, nullable=False)
+    in_diet = db.Column(db.Boolean)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
