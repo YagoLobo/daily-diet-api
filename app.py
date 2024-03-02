@@ -146,7 +146,8 @@ def read_meals():
                                 "meal_name": meal.meal_name,
                                 "description": meal.description,
                                 "date": meal.date,
-                                "in_diet": meal.in_diet
+                                "in_diet": meal.in_diet,
+                                "id": meal.id
                                 })
         return jsonify(user_meals)
 
@@ -167,7 +168,7 @@ def read_espf_meal(id_meal):
                         "meal_name": meal.meal_name,
                         "description": meal.description,
                         "date": meal.date,
-                        "in_diet": meal.in_diet
+                        "in_diet": meal.in_diet,
                         })
     return jsonify({"message": "Refeicao nao encontrada"}), 404
 
@@ -186,43 +187,6 @@ def delete_meal(id_meal):
         return jsonify({"message": "Refeicao nao encontrada"}), 404
     return jsonify({"message": "Operacao nao permitida"}), 403
 
-@app.route('/meal/update/<int:id_meal>/<string:field_to_change>', methods=['PUT'])
-@login_required
-def update_field_meal(id_meal, field_to_change):
-    data = request.json
-    user = User.query.get(int(current_user.id))
-    meal = Meal.query.get(id_meal)
-
-    if not meal:
-        return jsonify({"message": "Refeicao nao encontrada"}), 404
-
-    if current_user.id != meal.user_id:
-        return jsonify({"message": "Operacao nao permitida"}), 403
-    
-    if field_to_change == "description":
-        new_description = data.get("new_value")
-        meal.description = new_description
-        db.session.commit()
-        return jsonify({"message": f"Refeicao {id_meal} atualizada com sucesso"})
-   
-    if field_to_change == "name":
-        new_name = data.get("new_value")
-        meal.meal_name = new_name
-        db.session.commit()
-        return jsonify({"message": f"Refeicao {id_meal} atualizada com sucesso"})
-
-    if field_to_change == "date":
-        new_date_str = data.get("new_value")
-        new_date = datetime.strptime(new_date_str, '%d-%m-%Y %H:%M:%S')
-        meal.date = new_date
-        db.session.commit()
-        return jsonify({"message": f"Refeicao {id_meal} atualizada com sucesso"})
-
-    if field_to_change == "in_diet":
-        new_in_diet = data.get("new_value")
-        meal.in_diet = new_in_diet
-        db.session.commit()
-        return jsonify({"message": f"Refeicao {id_meal} atualizada com sucesso"})
 
 @app.route('/meal/update/<int:id_meal>', methods=['PUT'])
 @login_required
@@ -230,20 +194,32 @@ def update_meal(id_meal):
     data = request.json
     user = User.query.get(int(current_user.id))
     meal = Meal.query.get(id_meal)
-
+   
     if current_user.id != meal.user_id:
         return jsonify({"message": "Operacao nao permitida"}), 403
 
-    if meal:
-        new_description = data.get("new_description")
-        new_name = data.get("new_name")
-        new_date_str = data.get("new_date_str")
-        new_in_diet = data.get("new_in_diet")
+    new_date_str = data.get("new_date_str")
+    if new_date_str:
         new_date = datetime.strptime(new_date_str, '%d-%m-%Y %H:%M:%S')
-        meal.meal_name = new_name
         meal.date = new_date
-        meal.in_diet = new_in_diet
+        pass
+   
+    new_description = data.get("new_description")
+    if new_description:
         meal.description = new_description
+        pass
+    
+    new_name = data.get("new_name")
+    if new_name:
+        meal.meal_name = new_name
+        pass
+
+    new_in_diet = data.get("new_in_diet")
+    if new_in_diet != meal.in_diet:
+        meal.in_diet = new_in_diet
+        pass
+    
+    if meal:
         db.session.commit()
         return jsonify({"message": f"Refeicao {id_meal} atualizada com sucesso"})
     return jsonify({"message": "Refeicao nao encontrada"}), 404
